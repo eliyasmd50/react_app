@@ -1,25 +1,27 @@
-import { useEffect, useContext, useState } from 'react';
+import { useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import DataContext from './context/DataContext';
 import { format } from "date-fns";
-import api from "./api/posts";
+import { useStoreState, useStoreActions } from 'easy-peasy';
 
 const EditPost = () => {
-    const [editTitle, setEditTitle] = useState("");
-  const [editBody, setEditBody] = useState("");
-    const {posts, setPosts } = useContext(DataContext);
+    const editTitle = useStoreState((state) => state.editTitle);
+    const editBody = useStoreState((state) => state.editBody);
+    const setEditTitle = useStoreActions((actions) => actions.setEditTitle);
+    const setEditBody = useStoreActions((actions) => actions.setEditBody);
     const { id } = useParams();
-    const post = posts.find(post => (post.id).toString() === id);
+    const getPostsById = useStoreState((actions) => actions.getPostsById);
+    const post = getPostsById(id);
     const history = useNavigate();
+    const editPost = useStoreActions((actions) => actions.editPost);
 
     useEffect(() => {
-        if(posts) {
+        if(post) {
             setEditBody(post.body);
             setEditTitle(post.title);
         }
-    }, [post.body, post.title, posts, setEditBody, setEditTitle]);
+    }, [post.body, post.title, post, setEditBody, setEditTitle]);
 
-    const handleEdit = async (id) => {
+    const handleEdit = (id) => {
         const datetime = format(new Date(), "MMM dd, yyyy pp");
         const updatePost = {
           id: id,
@@ -27,18 +29,8 @@ const EditPost = () => {
           datetime: datetime,
           body: editBody,
         };
-        try {
-          const response = await api.put("/posts/" + id.toString(), updatePost);
-          const allPosts = posts.map((post) =>
-            post.id === id ? { ...response.data } : post
-          );
-          setPosts(allPosts);
-          setEditTitle("");
-          setEditBody("");
-          history("/");
-        } catch (error) {
-          console.log(`Error: ${error.message}`);
-        }
+        editPost(updatePost);
+        history('/post/' + id);
       };
 
     return (
@@ -62,7 +54,7 @@ const EditPost = () => {
                             value={editBody}
                             onChange={(e) => setEditBody(e.target.value)}
                         />
-                        <button type="submit" onClick={() => handleEdit(post.id)}>Submit</button>
+                        <button type="button" onClick={() => handleEdit(post.id)}>Submit</button>
                     </form>
                 </>
             }

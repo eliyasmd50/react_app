@@ -1,16 +1,17 @@
-import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DataContext from './context/DataContext';
 import { format } from "date-fns";
-import api from "./api/posts";
+import { useStoreState, useStoreActions } from 'easy-peasy';
 
 const NewPost = () => {
-  const [postTitle, setPostTitle] = useState("");
-  const [postBody, setPostBody] = useState("");
-  const { posts, setPosts } = useContext(DataContext);
+  const postTitle = useStoreState((state) => state.postTitle);
+  const postBody = useStoreState((state) => state.postBody);
+  const setPostTitle = useStoreActions((actions) => actions.setPostTitle);
+  const setPostBody = useStoreActions((actions) => actions.setPostBody);
+  const posts = useStoreState((state) => state.posts);
+  const savePost = useStoreActions((actions) => actions.savePost);
   const history = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const id = posts.length
       ? (Number(posts[posts.length - 1].id) + 1).toString()
@@ -22,16 +23,8 @@ const NewPost = () => {
       datetime: datetime,
       body: postBody,
     };
-    try {
-      const response = await api.post("/posts", newPost);
-      const allPosts = [...posts, response.data];
-      setPosts(allPosts);
-      setPostBody("");
-      setPostTitle("");
-      history("/");
-    } catch (err) {
-      console.log(`Error: ${err.message}`);
-    }
+    savePost(newPost);
+    history('/');
   };
 
 

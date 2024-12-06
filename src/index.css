@@ -8,5 +8,8 @@
 
 body {
   font-family: 'Nunito', sans-serif;
+  display: grid;
+  place-content: center;
+  min-height: 50vh;
 }
 

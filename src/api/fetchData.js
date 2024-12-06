@@ -1,16 +1,14 @@
 import axios from 'axios';
 
-const fetchData = async (page) => {
+const fetchData = async () => {
     try {
-        const result = await axios.get(`https://jsonplaceholder.typicode.com/posts?userId=${page}`)
+        const result = await axios.get(`https://jsonplaceholder.typicode.com/users`)
         return result;
 
     } catch (error) {
         console.log(error.message);
     }
-  return (
-    <div>fetchData</div>
-  )
+  return;
 }
 
 export default fetchData

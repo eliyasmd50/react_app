@@ -1,47 +1,52 @@
 import { useState, useEffect } from 'react';
 import fetchData from './api/fetchData';
-import PaginationContent from './PaginationContent';
 
 function App() {
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const [isLoading, setIsLoading ] = useState(false)
+  const [ searchItem, setSearchItem ] = useState('');
+  const [ userData, setUserData ] = useState([]);
+  const [ searchValue, setSearchValue ] = useState('');
 
   useEffect(() => {
-    setIsLoading(true);
-    const api = async ()=> {
-      try {
-        const fetchingData = await fetchData(currentPage);
-        console.log(fetchingData.data);
-        setData(fetchingData.data);
-        setIsLoading(false);
-      } catch (error) {
-        console.log(error.message);
-      }
-    }
-    api();
-  }, [currentPage]);
+    const users = async () => {
+      const result = await fetchData();
+      setUserData(result.data);
+    };
+    users()
+  }, [])
 
-  const handlePreviuos = () => {
-    setCurrentPage(currentPage - 1);
+
+
+  const handleSearch = async (e) => {
+    setSearchItem(e.target.value);
+    const searchResult = userData.filter((item) => (item.name).toLowerCase().includes(searchItem));
+    setSearchValue(searchResult);
   }
-
-  const handleNext = () => {
-    setCurrentPage(currentPage + 1);
-  }
-
-
 
   return (
     <div>
-      <PaginationContent 
-        data={data} 
-        handlePreviuos={handlePreviuos} 
-        handleNext={handleNext} 
-        currentPage={currentPage}
-        isLoading={isLoading} 
+      <h1>Search Filter</h1>
+      <input
+       type='text'
+       value={searchItem}
+       onChange={handleSearch}
+       placeholder='Enter the text to search'
+       style={{ padding: '8px', width: '300px', marginBottom: '20px' }}
       />
+      <>
+        <ul>
+            {searchValue.length > 0 
+            ? (
+              searchValue.map((item) => 
+                <li key={item.id}>
+                  {item.name} <br/>
+                  {item.username}
+                </li>
+              )
+            ) : (
+              <li>NO content Available</li>
+            )}
+        </ul>
+      </>
     </div>
   )
 }

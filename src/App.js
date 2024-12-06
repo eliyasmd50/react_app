@@ -5,6 +5,7 @@ function App() {
   const [ searchItem, setSearchItem ] = useState('');
   const [ userData, setUserData ] = useState([]);
   const [ searchValue, setSearchValue ] = useState('');
+  const [ debouncedQuery, setDebouncedQuery] = useState('');
 
   useEffect(() => {
     const users = async () => {
@@ -14,12 +15,20 @@ function App() {
     users()
   }, [])
 
+  useEffect(() => {
+    setTimeout(() => {
+      setDebouncedQuery(searchItem)
+    }, 2000)
+  }, [searchItem])
+
+  useEffect(() => {
+      const searchResult = userData.filter((item) => (item.name).toLowerCase().includes(debouncedQuery));
+      setSearchValue(searchResult);
+  }, [debouncedQuery, userData])
 
 
   const handleSearch = async (e) => {
-    setSearchItem(e.target.value);
-    const searchResult = userData.filter((item) => (item.name).toLowerCase().includes(searchItem));
-    setSearchValue(searchResult);
+      setSearchItem(e.target.value);
   }
 
   return (
